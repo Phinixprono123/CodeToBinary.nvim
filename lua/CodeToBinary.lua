@@ -7,7 +7,7 @@ local function to_binary(str)
 		local byte = string.byte(str, i)
 		local bin = ""
 		for j = 7, 0, -1 do
-			bin = bin .. ((byte >> j) & 1)
+			bin = bin .. ((bit32.extract(byte, j) == 1) and "1" or "0")
 		end
 		binary_str = binary_str .. bin .. " "
 	end
