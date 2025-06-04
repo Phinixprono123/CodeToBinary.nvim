@@ -58,14 +58,14 @@ function M.show_binary()
 		table.insert(binary_content, to_binary(line))
 	end
 
-	-- Open a **split window** for binary output
-	vim.cmd("vsplit") -- Opens a vertical split
-	local new_buf = vim.api.nvim_get_current_buf()
+	-- Open a split without switching focus
+	vim.cmd("vsplit") -- Opens vertical split
+	local new_buf = vim.api.nvim_create_buf(false, true) -- Create a new buffer
+	vim.api.nvim_win_set_buf(0, new_buf) -- Set new buffer to split pane
 	vim.api.nvim_buf_set_lines(new_buf, 0, -1, false, binary_content)
 
 	print("Binary view opened in a split pane!")
 end
-
 -- Command to convert binary back to normal text
 function M.convert_binary_to_text()
 	local buf = vim.api.nvim_get_current_buf()
