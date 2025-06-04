@@ -1,5 +1,6 @@
 local M = {}
 
+local bit = require("bit") -- Load LuaJIT bitwise module
 -- Convert text to binary
 local function to_binary(str)
 	local binary_str = ""
@@ -7,13 +8,12 @@ local function to_binary(str)
 		local byte = string.byte(str, i)
 		local bin = ""
 		for j = 7, 0, -1 do
-			bin = bin .. ((bit32.extract(byte, j) == 1) and "1" or "0")
+			bin = bin .. tostring(bit.band(bit.rshift(byte, j), 1))
 		end
 		binary_str = binary_str .. bin .. " "
 	end
 	return binary_str
 end
-
 -- Command to overwrite the file with binary content
 function M.write_binary()
 	local buf = vim.api.nvim_get_current_buf()
