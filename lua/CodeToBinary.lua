@@ -1,6 +1,7 @@
+local bit = require("bit") -- LuaJIT bitwise operations
+
 local M = {}
 
-local bit = require("bit") -- Load LuaJIT bitwise module
 -- Convert text to binary
 local function to_binary(str)
 	local binary_str = ""
@@ -14,7 +15,20 @@ local function to_binary(str)
 	end
 	return binary_str
 end
--- Command to overwrite the file with binary content
+
+-- Convert binary back to text
+local function from_binary(binary_str)
+	local text = ""
+	for bin in binary_str:gmatch("%S+") do -- Match each binary sequence
+		local byte = tonumber(bin, 2) -- Convert binary to decimal
+		if byte then
+			text = text .. string.char(byte) -- Convert decimal to character
+		end
+	end
+	return text
+end
+
+-- Command to write binary into the current file (with confirmation)
 function M.write_binary()
 	local buf = vim.api.nvim_get_current_buf()
 	local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
@@ -34,7 +48,7 @@ function M.write_binary()
 	end
 end
 
--- Command to display binary in a separate buffer
+-- Command to display binary in a **split pane**
 function M.show_binary()
 	local buf = vim.api.nvim_get_current_buf()
 	local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
@@ -44,14 +58,31 @@ function M.show_binary()
 		table.insert(binary_content, to_binary(line))
 	end
 
-	-- Create a new buffer for binary display
-	local new_buf = vim.api.nvim_create_buf(false, true)
+	-- Open a **split window** for binary output
+	vim.cmd("vsplit") -- Opens a vertical split
+	local new_buf = vim.api.nvim_get_current_buf()
 	vim.api.nvim_buf_set_lines(new_buf, 0, -1, false, binary_content)
-	vim.api.nvim_set_current_buf(new_buf)
+
+	print("Binary view opened in a split pane!")
+end
+
+-- Command to convert binary back to normal text
+function M.convert_binary_to_text()
+	local buf = vim.api.nvim_get_current_buf()
+	local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+	local normal_text = ""
+
+	for _, line in ipairs(lines) do
+		normal_text = normal_text .. from_binary(line) .. "\n"
+	end
+
+	vim.api.nvim_buf_set_lines(buf, 0, -1, false, vim.split(normal_text, "\n"))
+	print("Converted binary back to text!")
 end
 
 -- Register Commands
 vim.api.nvim_create_user_command("BinaryWrite", M.write_binary, {})
 vim.api.nvim_create_user_command("BinaryShow", M.show_binary, {})
+vim.api.nvim_create_user_command("BinaryToText", M.convert_binary_to_text, {})
 
 return M
