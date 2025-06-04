@@ -19,11 +19,15 @@ end
 -- Convert binary back to text
 local function from_binary(binary_str)
 	local text = ""
-	for bin in binary_str:gmatch("%S+") do
-		local byte = tonumber(bin, 2)
-		if byte then
-			text = text .. string.char(byte)
+	for bin_line in binary_str:gmatch("[01%s]+") do -- Process each binary line separately
+		local decoded_line = ""
+		for bin in bin_line:gmatch("%S+") do -- Match each binary sequence (word)
+			local byte = tonumber(bin, 2)
+			if byte then
+				decoded_line = decoded_line .. string.char(byte)
+			end
 		end
+		text = text .. decoded_line .. "\n" -- Preserve new lines
 	end
 	return text
 end
