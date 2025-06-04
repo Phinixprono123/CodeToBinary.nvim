@@ -4,7 +4,12 @@ local M = {}
 local function to_binary(str)
 	local binary_str = ""
 	for i = 1, #str do
-		binary_str = binary_str .. string.format("%08b ", string.byte(str, i))
+		local byte = string.byte(str, i)
+		local bin = ""
+		for j = 7, 0, -1 do
+			bin = bin .. ((byte >> j) & 1)
+		end
+		binary_str = binary_str .. bin .. " "
 	end
 	return binary_str
 end
